@@ -51,7 +51,7 @@
 import Restroom from '../models/restroom';
 
 export default {
-  name: 'bathroom-card',
+  name: 'restroom-list-card',
   props: {
     restroom: {
       type: Restroom,

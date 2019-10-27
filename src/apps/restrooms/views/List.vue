@@ -5,6 +5,9 @@
       <v-col
         v-if="restrooms"
         cols="6"
+        md="6"
+        xs="12"
+        sm="12"
       >
         <!-- Toolbar for filter -->
         <v-toolbar
@@ -15,7 +18,7 @@
         </v-toolbar>
 
         <!-- List of cards -->
-        <restroom-card
+        <restroom-list-card
           v-for="restroom in restrooms"
           :restroom="restroom"
           :key="restroom.id"
@@ -23,19 +26,29 @@
 
       </v-col>
       <!-- Map col -->
+      <v-col
+        cols="6"
+        md="6"
+        xs="12"
+        sm="12"
+      >
+        <restroom-list-map />
+      </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
 import Restroom from '../models/restroom';
-import RestroomCard from '../components/RestroomCard.vue';
+import RestroomListCard from '../components/RestroomListCard.vue';
+import RestroomListMap from '../components/RestroomListMap.vue';
 import WebApi from '../webapi';
 
 export default {
   name: 'restroom-list',
   components: {
-    RestroomCard,
+    RestroomListCard,
+    RestroomListMap,
   },
   data() {
     return {
