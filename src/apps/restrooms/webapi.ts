@@ -18,7 +18,6 @@ interface RestroomsByLocationParams {
 export default class WebApi {
   public static async getRestrooms(params: RestroomsByLocationParams) {
     const url = WebApi.buildUrlQueryParams(RESTROOMS_SEARCH_API, params);
-    console.log(url);
     const response = await fetch(url);
     const respJson = await response.json();
     return respJson;
