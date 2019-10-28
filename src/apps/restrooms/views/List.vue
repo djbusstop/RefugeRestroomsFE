@@ -3,23 +3,23 @@
     <v-row>
       <!-- Left col -->
       <v-col
-        v-if="restrooms"
         cols="6"
-        md="6"
-        xs="12"
-        sm="12"
       >
-        <!-- Toolbar for filter -->
-        <v-toolbar
-          flat
-          dense
+        <v-alert
+          v-if="loading"
+          color="primary lighten-2"
+          dark
         >
-          <v-toolbar-title>Filter</v-toolbar-title>
-        </v-toolbar>
+          <v-progress-circular
+            :indeterminate="loading"
+          />
+          <span class="ml-6"> Results Loading...</span>
+        </v-alert>
 
         <!-- List of cards -->
         <restroom-list-card
           v-for="restroom in restrooms"
+          @hover="handleHover"
           :restroom="restroom"
           :key="restroom.id"
         />
@@ -28,31 +28,38 @@
       <!-- Map col -->
       <v-col
         cols="6"
-        md="6"
-        xs="12"
-        sm="12"
       >
-        <restroom-list-map />
+        <restroom-list-map
+          :userCoords="userCoords"
+          :mapCenter="mapCenter"
+          :data="mapData"
+        />
       </v-col>
     </v-row>
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
+import { OPENCAGE_API_KEY } from '../../../constants';
 import Restroom from '../models/restroom';
 import RestroomListCard from '../components/RestroomListCard.vue';
 import RestroomListMap from '../components/RestroomListMap.vue';
 import WebApi from '../webapi';
 
 export default {
-  name: 'restroom-list',
+  name: 'restroouserLocationPointm-list',
   components: {
     RestroomListCard,
     RestroomListMap,
   },
   data() {
     return {
+      loading: false,
+      messages: [],
       restrooms: null,
+      mapCenter: null,
+      mapData: null,
+      userCoords: null,
     };
   },
   created() {
@@ -63,14 +70,45 @@ export default {
     $route: 'getBathrooms',
   },
   methods: {
-    async getBathrooms() {
-      const restrooms = await WebApi.getRestrooms({ query: this.$route.query.search });
-      if (restrooms.length > 0) {
-        this.restrooms = restrooms.map(restroom => new Restroom(restroom, {
-          lat: 51.52,
-          lng: -0.25,
-        }));
+    handleHover(hoverState: any) {
+      // get item from hover
+      this.mapCenter = hoverState.latLng;
+    },
+    async getUserCoords(address: string) {
+      try {
+        const url = `https://api.opencagedata.com/geocode/v1/geojson?q=${address}&key=${OPENCAGE_API_KEY}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        const coords = json.features[0].geometry.coordinates;
+        return coords.reverse();
+      } catch {
+        this.messages.push({
+          type: 'error',
+          content: 'Could not find location for address',
+        });
       }
+      return null;
+    },
+    async getBathrooms() {
+      this.loaduserLocationPointing = true;
+      // Get Address
+      const searchString = this.$route.query.search;
+      const userCoords = await this.getUserCoords(searchString);
+      // Center Map
+      this.userCoords = userCoords;
+      // Get Restrooms at address
+      const restroomsResp = await WebApi.getRestroomsByLocation({
+        lat: userCoords[0],
+        lng: userCoords[1],
+      });
+      if (restroomsResp.length > 0) {
+        this.restrooms = restroomsResp.map(restroom => new Restroom(restroom, {
+          lat: userCoords[0],
+          lng: userCoords[1],
+        }));
+        this.mapData = Restroom.toGeoJsonFeatureSet(this.restrooms);
+      }
+      this.loading = false;
     },
   },
 };

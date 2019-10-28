@@ -2,7 +2,9 @@
     <v-card
       flat
       outlined
-      class="mt-10"
+      class="mb-10"
+      @mouseover="hover = true"
+      @mouseleave="hover = false"
     >
       <v-row>
         <v-col cols="9">
@@ -56,6 +58,20 @@ export default {
     restroom: {
       type: Restroom,
       required: true,
+    },
+  },
+  data() {
+    return {
+      hover: false,
+    };
+  },
+  watch: {
+    hover(value) {
+      if (value === true) {
+        this.$emit('hover', {
+          latLng: [this.restroom.latitude, this.restroom.longitude],
+        });
+      }
     },
   },
 };

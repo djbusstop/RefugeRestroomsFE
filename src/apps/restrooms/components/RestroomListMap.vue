@@ -16,10 +16,14 @@ export default {
     userCoords: {
       type: undefined,
     },
+    mapCenter: {
+      type: undefined,
+    },
   },
   data() {
     return {
       map: null,
+      userLocationPoint: null,
     };
   },
   mounted() {
@@ -27,9 +31,20 @@ export default {
   },
   watch: {
     userCoords(value) {
-      if (value) {
-        this.map.setView(value, 14);
+      if (this.userLocationPoint) {
+        this.map.removeLayer(this.userLocationPoint);
       }
+      this.map.setView(value, 13);
+      this.userLocationPoint = L.circle(value).addTo(this.map);
+    },
+    mapCenter(value) {
+      this.map.setView(value, 18);
+    },
+    data(value) {
+      this.map.drawPoints(value);
+      const point = value.features[5].geometry.coordinates;
+      const bounds = [this.userCoords, point.reverse()];
+      this.map.fitZoom(bounds);
     },
   },
   methods: {

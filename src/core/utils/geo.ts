@@ -1,14 +1,17 @@
-interface LatLng {
+/* eslint no-param-reassign: 0 */
+export interface LatLng {
   lat: number
   lng: number
 }
+
+type LatLngList = [number, number];
 
 export enum DistanceUnits {
   KILOMETERS = 'K',
   MILES = 'N'
 }
 
-export const distance = (coords1: LatLng, coords2: LatLng, unit: DistanceUnits) => {
+export const distance = (coords1: LatLng, coords2: LatLng, unit: DistanceUnits): number => {
   const { lat: lat1, lng: lng1 } = coords1;
   const { lat: lat2, lng: lng2 } = coords2;
   if ((lat1 === lat2) && (lng1 === lng2)) {
@@ -28,5 +31,40 @@ export const distance = (coords1: LatLng, coords2: LatLng, unit: DistanceUnits) 
   dist = dist * 60 * 1.1515;
   if (unit === 'K') { dist *= 1.609344; }
   if (unit === 'N') { dist *= 0.8684; }
-  return dist.toPrecision(2);
+  // Format text
+  const distString = String(dist);
+  const splitDistString = distString.split('.');
+  if (splitDistString[0].length > 2) {
+    return Number(splitDistString[0]);
+  }
+  if (splitDistString.length > 1) {
+    return Number(`${splitDistString[0]}.${splitDistString[1].slice(0, 2)}`);
+  }
+  return Number(distString);
 };
+
+export const farthestTwoPoints = (points: any): any => (
+  points.reduce((acc: any, point: any, index: any, array: []) => {
+    let farthestDistance = 0;
+    array.forEach((val, index2) => {
+      const [lat1, lng1] = points[index];
+      const [lat2, lng2] = points[index2];
+      const distanceBetween = distance(
+        {
+          lat: lat1,
+          lng: lng1,
+        },
+        {
+          lat: lat2,
+          lng: lng2,
+        },
+        DistanceUnits.KILOMETERS,
+      );
+      if (distanceBetween > farthestDistance) {
+        farthestDistance = distanceBetween;
+        acc = [points[index].reverse(), points[index2].reverse()];
+      }
+    });
+    return acc;
+  }, [])
+);

@@ -1,5 +1,5 @@
 /* eslint class-methods-use-this: 0 */
-import { RESTROOMS_SEARCH_API } from '@/constants';
+import { RESTROOMS_BY_LOCATION_API } from '@/constants';
 
 interface RestroomSearchParams {
   query: string,
@@ -14,10 +14,13 @@ interface RestroomsByLocationParams {
   offset?: number,
 }
 
-
 export default class WebApi {
-  public static async getRestrooms(params: RestroomsByLocationParams) {
-    const url = WebApi.buildUrlQueryParams(RESTROOMS_SEARCH_API, params);
+  public static async getRestroomsByLocation(params: RestroomsByLocationParams) {
+    const requestParams = {
+      per_page: 20,
+      ...params,
+    };
+    const url = WebApi.buildUrlQueryParams(RESTROOMS_BY_LOCATION_API, requestParams);
     const response = await fetch(url);
     const respJson = await response.json();
     return respJson;

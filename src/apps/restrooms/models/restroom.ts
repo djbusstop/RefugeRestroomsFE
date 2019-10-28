@@ -21,7 +21,7 @@ export default class Restroom {
   unisex:true
   updatedAt: Date
   upvote: number
-  distance?: number
+  distance: number | string
 
   constructor(restroom: any, userCoords: {lat: number, lng: number}) {
     this.accessible = restroom.accessible;
@@ -50,5 +50,29 @@ export default class Restroom {
       },
       DistanceUnits.KILOMETERS,
     );
+  }
+
+  toGeoJson() {
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [this.longitude, this.latitude],
+      },
+      properties: {
+        name: this.name,
+        street: this.street,
+        state: this.state,
+        distance: this.distance,
+      },
+    };
+  }
+
+  static toGeoJsonFeatureSet(restrooms: [Restroom]) {
+    const featureList = restrooms.map(restroom => restroom.toGeoJson());
+    return {
+      type: 'FeatureCollection',
+      features: featureList,
+    };
   }
 }

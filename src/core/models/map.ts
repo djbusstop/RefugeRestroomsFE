@@ -1,4 +1,5 @@
 import L from 'leaflet';
+import { farthestTwoPoints } from '@/core/utils/geo';
 
 const routeStyle = {
   color: '#F9971E',
@@ -8,6 +9,15 @@ const routeStyle = {
 const startEndPointsStyle = {
   color: '#F9971E',
   radius: 10,
+  fillOpacity: 1,
+};
+
+const geojsonMarkerOptions = {
+  radius: 12,
+  fillColor: '#ff7800',
+  color: '#000',
+  weight: 1,
+  opacity: 1,
   fillOpacity: 1,
 };
 
@@ -27,11 +37,10 @@ export default class Map extends L.Map {
     this.setView([51.505, -0.09], 13);
   }
 
-  drawRoute(route: any) {
-    L.geoJSON(route.geojson, routeStyle).addTo(this);
-    if (route.startPoint && route.endPoint) {
-      this.drawStartEndPoints([route.startPoint, route.endPoint]);
-    }
+  drawPoints(featureCollection: any) {
+    L.geoJSON(featureCollection, {
+      pointToLayer: (feature, latlng) => L.circleMarker(latlng, geojsonMarkerOptions),
+    }).addTo(this);
   }
 
   drawStartEndPoints(startEndPoints: any) {
@@ -41,7 +50,13 @@ export default class Map extends L.Map {
     });
   }
 
-  fitZoomToRoute(startEndPoints: any) {
+  fitZoom(startEndPoints: any) {
     this.fitBounds(startEndPoints);
+  }
+
+  fitZoomFarthestTwoPoints(featureCollection: any) {
+    const coords = featureCollection.features.map((feat: any) => feat.geometry.coordinates);
+    const farthestPoints = farthestTwoPoints(coords);
+    this.fitZoom(farthestPoints);
   }
 }
