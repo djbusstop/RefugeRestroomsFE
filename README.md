@@ -1,4 +1,4 @@
-# Refuge Restrooms Vue.js Frontent
+# Refuge Restrooms Vue.js Frontend
 In 2013 at an LGBT Hackathon in the Mozilla Offices in SF, I worked on the frontend for [Refuge Restrooms](www.refugerestrooms.org). This repo was a somewhat feeble attempt to modernise the frontend of RR, which is mostly old haml templates. It's not nice. I used this little project to practice working with maps and implementing interactive interfaces with maps. 
 
 ## Project setup
